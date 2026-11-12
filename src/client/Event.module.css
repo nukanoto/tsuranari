@@ -1,0 +1,258 @@
+.page {
+  display: grid;
+  gap: 16px;
+}
+
+.card {
+  padding: 20px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.card h1,
+.card h2 {
+  margin: 0;
+}
+
+.card h1 {
+  font-size: 1.4rem;
+}
+
+.card h2 {
+  font-size: 1.1rem;
+}
+
+.muted {
+  margin: 0;
+  color: var(--muted);
+}
+
+.memo {
+  margin: 0;
+  white-space: pre-wrap;
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: 6px;
+}
+
+.share {
+  display: flex;
+  gap: 8px;
+}
+
+.share button {
+  white-space: nowrap;
+}
+
+.error {
+  margin: 0;
+  color: var(--ng);
+}
+
+.filter {
+  display: grid;
+  gap: 8px;
+}
+
+.filterHead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.inline {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.people {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.people li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.people li.off {
+  opacity: 0.55;
+}
+
+.comment {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.actions {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+}
+
+.actions button {
+  padding: 2px 8px;
+  font-size: 0.85rem;
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.grid {
+  border-collapse: collapse;
+  user-select: none;
+}
+
+.grid th,
+.grid td {
+  border: 1px solid var(--line);
+  padding: 4px 6px;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 0.85rem;
+}
+
+.grid thead th {
+  position: sticky;
+  top: 0;
+  background: #fff;
+}
+
+.grid tbody th {
+  position: sticky;
+  left: 0;
+  background: #fff;
+  text-align: right;
+}
+
+.sat {
+  color: var(--accent);
+}
+
+.sun {
+  color: var(--ng);
+}
+
+.dayButton {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  text-decoration: underline dotted;
+}
+
+.sum {
+  min-width: 52px;
+  padding: 0;
+  background: color-mix(in srgb, var(--ok) calc(var(--ratio) * 70%), #fff);
+  color: var(--fg);
+}
+
+.sum button {
+  width: 100%;
+  padding: 4px 6px;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font-weight: inherit;
+}
+
+.sum.full {
+  outline: 2px solid var(--best);
+  outline-offset: -2px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.sum.dim {
+  background: #fff;
+  color: transparent;
+}
+
+.sum.active {
+  box-shadow: inset 0 0 0 3px var(--accent);
+}
+
+.detail {
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: 6px;
+}
+
+.detail p {
+  margin: 4px 0 0;
+}
+
+.ok {
+  color: var(--ok);
+  font-weight: 700;
+}
+
+.ng {
+  color: var(--ng);
+  font-weight: 700;
+}
+
+.answer {
+  display: grid;
+  gap: 12px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+}
+
+.field > span {
+  font-weight: 600;
+}
+
+.mark {
+  min-width: 52px;
+  height: 28px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.mark.marked {
+  background: #ffebe9;
+  color: var(--ng);
+}
+
+.mark.marked.markOk {
+  background: #dafbe1;
+  color: var(--ok);
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 600px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}

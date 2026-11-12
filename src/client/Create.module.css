@@ -1,0 +1,58 @@
+.form {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 16px;
+}
+
+.form h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.lead,
+.hint {
+  margin: 0;
+  color: var(--muted);
+}
+
+.hint {
+  margin-top: -8px;
+  font-size: 0.85rem;
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.field > span,
+.field > legend {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.choice {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 2px 0;
+}
+
+.error {
+  margin: 0;
+  color: var(--ng);
+}
