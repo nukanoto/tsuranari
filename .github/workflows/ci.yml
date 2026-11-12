@@ -23,9 +23,20 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
+      # The database ID is kept out of the repository, so inject it at deploy time.
+      - name: Inject D1 database ID
+        run: |
+          bun -e '
+            const f = "wrangler.jsonc";
+            const c = JSON.parse(await Bun.file(f).text());
+            if (!process.env.D1_DATABASE_ID) throw new Error("D1_DATABASE_ID is not set");
+            c.d1_databases[0].database_id = process.env.D1_DATABASE_ID;
+            await Bun.write(f, JSON.stringify(c, null, 2));
+          '
       - run: bunx wrangler d1 migrations apply tsuranari --remote
       - run: bun run deploy

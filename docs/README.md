@@ -72,8 +72,11 @@ main に push すると GitHub Actions (`.github/workflows/ci.yml`) が check �
 
 - `CLOUDFLARE_API_TOKEN`: アカウントの Workers Scripts と D1、ゾーン `nukanoto.net` の Workers Routes と DNS に Edit 権限を持つトークン
 - `CLOUDFLARE_ACCOUNT_ID`
+- `D1_DATABASE_ID`: D1 データベース `tsuranari` の ID
 
-手元からデプロイするときは、同じ 2 つを環境変数に入れて次を実行する。
+D1 の ID はリポジトリに置かない。`wrangler.jsonc` には `database_id` を書かず、CI がデプロイの直前に secret から書き込む。ローカルの開発とテストは ID なしで動く。
+
+手元からデプロイするときは、`CLOUDFLARE_API_TOKEN` と `CLOUDFLARE_ACCOUNT_ID` を環境変数に入れる。さらに `wrangler.jsonc` の `d1_databases[0]` に `database_id` を一時的に書いてから(コミットしない)、次を実行する。
 
 ```sh
 bunx wrangler d1 migrations apply tsuranari --remote
