@@ -7,6 +7,7 @@ Cloudflare Workers 1 本で動き、https://tsuranari.nukanoto.net で公開す�
 - `src/events.ts`: イベントと回答の検証と D1 への読み書き。REST と MCP の両方がここを呼ぶ。
 - `src/index.ts`: 画面用の REST API (Hono) と、`/mcp` の振り分け。
 - `src/mcp.ts`: LLM 向けの MCP サーバー。
+- `src/og.ts`: イベントページの OGP。
 - `src/client/`: 画面 (Solid)。Workers Static Assets で配信し、`/api/*` と `/mcp` 以外のパスは `index.html` を返す。
 - `src/shared.ts`: Worker と画面が共有する定義 (時間単位、型、集計)。
 - スキーマは `migrations/` にある。
@@ -46,6 +47,15 @@ Cloudflare Workers 1 本で動き、https://tsuranari.nukanoto.net で公開す�
 - 一部だけを選ぶと `#with=<回答 ID>,<回答 ID>` になる。この URL を共有すると、同じ絞り込みで開ける。あとから回答した人は含まれない。
 - 全員を選び直すと hash は消える。
 
+## OGP
+
+画像は使わず、テキストだけを出す (`twitter:card` は `summary`)。
+
+- トップページなど: `index.html` に書いたサービス名と説明。
+- イベントページ (`/e/:id`): Worker (`src/og.ts`) が `index.html` を HTMLRewriter で書き換え、`title`、`og:title`、`og:description`、`description`、`og:url` にイベントの内容を入れる。説明文は「三谷 さんの日程調整。候補 11/16(月) 〜 11/20(金)。授業単位 (1限 〜 6限・昼休み)。回答 3 人」のような形になる。存在しないイベントでは書き換えない。
+
+画面に入ったあとは、ブラウザのタブのタイトルも「イベント名 - tsuranari」になる。
+
 ## REST API
 
 画面が使う API。LLM からは MCP を使う。
@@ -72,7 +82,7 @@ bunx wrangler d1 migrations apply tsuranari --local
 bun run dev
 ```
 
-`bun run test` は `@cloudflare/vitest-plugin` を使い、workerd とローカルの D1 で API を実際に呼ぶ。テストファイルごとにストレージが分かれ、`test/setup.ts` がマイグレーションを当てる。
+`bun run test` は先に `vite build` を実行し、ビルドした `dist/client` を静的アセットとして読み込む。OGP のテストが、本番で配る `index.html` を書き換えられるか確かめるため。テストは `@cloudflare/vitest-plugin` を使い、workerd とローカルの D1 で API を実際に呼ぶ。テストファイルごとにストレージが分かれ、`test/setup.ts` がマイグレーションを当てる。
 
 ## デプロイ
 

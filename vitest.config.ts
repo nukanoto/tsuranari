@@ -7,6 +7,9 @@ export default defineConfig({
       wrangler: { configPath: "./wrangler.jsonc" },
       miniflare: {
         bindings: { TEST_MIGRATIONS: await readD1Migrations("./migrations") },
+        // wrangler.jsonc leaves the asset directory to the Vite plugin, so point tests
+        // at the built client. `bun run test` builds first.
+        assets: { directory: "./dist/client", binding: "ASSETS" },
       },
     })),
   ],

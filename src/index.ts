@@ -9,8 +9,9 @@ import {
   updateResponse,
 } from "./events";
 import { handleMcp } from "./mcp";
+import { eventPage } from "./og";
 
-type Env = { DB: D1Database };
+type Env = { DB: D1Database; ASSETS: Fetcher };
 
 type Body = Record<string, unknown> | null;
 
@@ -49,5 +50,7 @@ app.delete("/api/events/:id/responses/:rid", async (c) => {
 app.all("/api/*", (c) => c.json({ error: "not found" }, 404));
 
 app.all("/mcp", (c) => handleMcp(c.req.raw, c.env.DB));
+
+app.get("/e/:id", (c) => eventPage(c.env.DB, c.env.ASSETS, new URL(c.req.url), c.req.param("id")));
 
 export default app;

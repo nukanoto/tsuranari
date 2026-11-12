@@ -50,6 +50,9 @@ function Loaded(props: { ev: Accessor<EventView>; refetch: () => unknown }) {
 
   const selected = createMemo(() => selectedIds(filter(), ev().responses));
   const cells = createMemo(() => aggregate(ev(), selected()));
+  createEffect(() => {
+    document.title = `${ev().title} - tsuranari`;
+  });
   const maxOk = createMemo(() => Math.max(0, ...[...cells().values()].map((c) => c.ok.length)));
 
   const toggle = (id: string) => {

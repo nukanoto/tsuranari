@@ -7,7 +7,7 @@
     "build": "vite build",
     "check": "biome check . && tsc --noEmit",
     "format": "biome check --write .",
-    "test": "vitest run",
+    "test": "vite build && vitest run",
     "deploy": "vite build && wrangler deploy"
   },
   "trustedDependencies": [
