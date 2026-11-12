@@ -47,6 +47,32 @@ describe("イベント作成", () => {
     expect(ev.dates).toHaveLength(4);
   });
 
+  it("昼休みを含む授業単位では、昼休みが 2 限と 3 限の間に入る", async () => {
+    const lunch = await getEvent(await createEvent({ unit: "class_1_6_lunch" }));
+    expect(lunch.slots).toEqual([
+      "1限 8:40",
+      "2限 10:10",
+      "昼休み",
+      "3限 12:15",
+      "4限 13:45",
+      "5限 15:15",
+      "6限 16:45",
+    ]);
+    const both = await getEvent(await createEvent({ unit: "class_1_6_lunch_after" }));
+    expect(both.slots.at(2)).toBe("昼休み");
+    expect(both.slots.at(-1), "放課後は最後に来ること").toBe("放課後");
+  });
+
+  it("昼休みを含まない授業単位の枠は変わらない", async () => {
+    // Existing answers store slot indexes, so these lists must never change.
+    const plain = await getEvent(await createEvent({ unit: "class_1_6" }));
+    expect(plain.slots).not.toContain("昼休み");
+    expect(plain.slots).toHaveLength(6);
+    const after = await getEvent(await createEvent({ unit: "class_1_6_after" }));
+    expect(after.slots).toHaveLength(7);
+    expect(after.slots.at(-1)).toBe("放課後");
+  });
+
   it("期間はちょうど 100 日まで許可し、101 日は拒否する", async () => {
     // 2026-01-01 + 99 days = 2026-04-10, which is 100 days inclusive.
     await createEvent({ start: "2026-01-01", end: "2026-04-10", excludeWeekends: false });

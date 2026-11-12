@@ -7,6 +7,9 @@ function range(from: number, to: number): number[] {
 
 const CLASS_PERIODS = ["1限 8:40", "2限 10:10", "3限 12:15", "4限 13:45", "5限 15:15", "6限 16:45"];
 
+// Lunch break sits between 2nd and 3rd period (11:25 - 12:15).
+const WITH_LUNCH = [...CLASS_PERIODS.slice(0, 2), "昼休み", ...CLASS_PERIODS.slice(2)];
+
 // Class periods follow the University of Tsukuba timetable.
 export const UNITS = {
   day: { label: "1日単位", slots: ["終日"] },
@@ -22,6 +25,12 @@ export const UNITS = {
   class_1_6_after: {
     label: "授業単位 (1限 〜 6限・放課後)",
     slots: [...CLASS_PERIODS, "放課後"],
+  },
+  // Added as separate units so slot indexes of existing events never shift.
+  class_1_6_lunch: { label: "授業単位 (1限 〜 6限・昼休み)", slots: WITH_LUNCH },
+  class_1_6_lunch_after: {
+    label: "授業単位 (1限 〜 6限・昼休み・放課後)",
+    slots: [...WITH_LUNCH, "放課後"],
   },
 } satisfies Record<string, { label: string; slots: string[] }>;
 
