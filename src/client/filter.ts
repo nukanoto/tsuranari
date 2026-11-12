@@ -1,29 +1,4 @@
-import { type EventView, type Mode, type ResponseView, slotKey } from "../shared";
-
-export function isAvailable(mode: Mode, marks: ReadonlySet<string>, key: string): boolean {
-  return mode === "ok" ? marks.has(key) : !marks.has(key);
-}
-
-export type Cell = { ok: ResponseView[]; ng: ResponseView[] };
-
-// Splits the selected participants into available / unavailable for every slot.
-export function aggregate(ev: EventView, selected: ReadonlySet<string>): Map<string, Cell> {
-  const people = ev.responses
-    .filter((r) => selected.has(r.id))
-    .map((r) => ({ r, marks: new Set(r.marks) }));
-  const cells = new Map<string, Cell>();
-  for (const date of ev.dates) {
-    ev.slots.forEach((_, i) => {
-      const key = slotKey(date, i);
-      const cell: Cell = { ok: [], ng: [] };
-      for (const p of people) {
-        (isAvailable(ev.mode, p.marks, key) ? cell.ok : cell.ng).push(p.r);
-      }
-      cells.set(key, cell);
-    });
-  }
-  return cells;
-}
+import type { ResponseView } from "../shared";
 
 const PREFIX = "#with=";
 

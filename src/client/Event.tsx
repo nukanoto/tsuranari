@@ -11,17 +11,10 @@ import {
   Show,
   Switch,
 } from "solid-js";
-import { type EventView, type ResponseView, slotKey } from "../shared";
-import {
-  aggregate,
-  type Filter,
-  formatFilter,
-  parseFilter,
-  selectedIds,
-  toFilter,
-} from "./aggregate";
+import { aggregate, type EventView, type ResponseView, slotKey } from "../shared";
 import { api, formatDate } from "./api";
 import styles from "./Event.module.css";
+import { type Filter, formatFilter, parseFilter, selectedIds, toFilter } from "./filter";
 
 export function EventPage(props: { id: string }) {
   const [ev, { refetch }] = createResource(() => api<EventView>(`/api/events/${props.id}`));

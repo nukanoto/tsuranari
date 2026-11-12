@@ -47,6 +47,15 @@ export type ResponseView = {
   updatedAt: string;
 };
 
+// A slot ranked by how many of the selected participants can attend.
+export type RankedSlot = {
+  slot: string;
+  date: string;
+  label: string;
+  ok: string[];
+  ng: string[];
+};
+
 export type EventView = {
   id: string;
   title: string;
@@ -54,7 +63,56 @@ export type EventView = {
   memo: string;
   mode: Mode;
   unit: Unit;
+  start: string;
+  end: string;
+  excludeWeekends: boolean;
   dates: string[];
   slots: string[];
   responses: ResponseView[];
 };
+
+export function isAvailable(mode: Mode, marks: ReadonlySet<string>, key: string): boolean {
+  return mode === "ok" ? marks.has(key) : !marks.has(key);
+}
+
+export type Cell = { ok: ResponseView[]; ng: ResponseView[] };
+
+type Grid = Pick<EventView, "mode" | "dates" | "slots" | "responses">;
+
+// Splits the selected participants into available / unavailable for every slot.
+export function aggregate(ev: Grid, selected: ReadonlySet<string>): Map<string, Cell> {
+  const people = ev.responses
+    .filter((r) => selected.has(r.id))
+    .map((r) => ({ r, marks: new Set(r.marks) }));
+  const cells = new Map<string, Cell>();
+  for (const date of ev.dates) {
+    ev.slots.forEach((_, i) => {
+      const key = slotKey(date, i);
+      const cell: Cell = { ok: [], ng: [] };
+      for (const p of people) {
+        (isAvailable(ev.mode, p.marks, key) ? cell.ok : cell.ng).push(p.r);
+      }
+      cells.set(key, cell);
+    });
+  }
+  return cells;
+}
+
+// Best slots first; ties keep chronological order because Array.sort is stable.
+export function rank(ev: Grid, selected: ReadonlySet<string>, limit: number): RankedSlot[] {
+  if (selected.size === 0) return [];
+  return [...aggregate(ev, selected)]
+    .filter(([, cell]) => cell.ok.length > 0)
+    .sort(([, a], [, b]) => b.ok.length - a.ok.length)
+    .slice(0, limit)
+    .map(([key, cell]) => {
+      const [date, slot] = key.split("#");
+      return {
+        slot: key,
+        date,
+        label: ev.slots[Number(slot)],
+        ok: cell.ok.map((r) => r.name),
+        ng: cell.ng.map((r) => r.name),
+      };
+    });
+}

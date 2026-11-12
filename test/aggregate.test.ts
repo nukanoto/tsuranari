@@ -1,12 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  aggregate,
-  formatFilter,
-  parseFilter,
-  selectedIds,
-  toFilter,
-} from "../src/client/aggregate";
-import type { EventView, ResponseView } from "../src/shared";
+import { formatFilter, parseFilter, selectedIds, toFilter } from "../src/client/filter";
+import { aggregate, type EventView, type ResponseView, rank } from "../src/shared";
 
 const person = (id: string, marks: string[]): ResponseView => ({
   id,
@@ -24,6 +18,9 @@ const event = (mode: "ng" | "ok"): EventView => ({
   memo: "",
   mode,
   unit: "half",
+  start: "2026-11-13",
+  end: "2026-11-16",
+  excludeWeekends: true,
   dates: ["2026-11-13", "2026-11-16"],
   slots: ["午前", "午後"],
   responses: [
@@ -56,6 +53,35 @@ describe("集計", () => {
     const cell = cells.get("2026-11-16#1");
     expect(cell?.ok.map((r) => r.id)).toEqual(["a"]);
     expect(cell?.ng, "b は選ばれていないので × にも数えないこと").toEqual([]);
+  });
+});
+
+describe("ベスト候補の順位付け", () => {
+  it("参加できる人数の多い順に並べ、同数なら日時の早い順にする", () => {
+    const best = rank(event("ng"), new Set(["a", "b", "c"]), 10);
+    // 11/13 PM and 11/16 AM have all three; 11/16 PM has two; 11/13 AM has one.
+    expect(best.map((s) => s.slot)).toEqual([
+      "2026-11-13#1",
+      "2026-11-16#0",
+      "2026-11-16#1",
+      "2026-11-13#0",
+    ]);
+    expect(best[0], "ラベルと名前で読めること").toMatchObject({
+      date: "2026-11-13",
+      label: "午後",
+      ok: ["a", "b", "c"],
+      ng: [],
+    });
+  });
+
+  it("件数の上限を守り、誰も選ばなければ空になる", () => {
+    expect(rank(event("ng"), new Set(["a", "b", "c"]), 2)).toHaveLength(2);
+    expect(rank(event("ng"), new Set(), 10)).toEqual([]);
+  });
+
+  it("誰も参加できない枠は含めない", () => {
+    // In ok mode only a and b marked 11/13 AM, so c alone has no slot.
+    expect(rank(event("ok"), new Set(["c"]), 10)).toEqual([]);
   });
 });
 
