@@ -2,7 +2,7 @@
 
 参加者の都合を集めて、全員が集まれる日時を探す日程調整アプリ。集計を参加者ごとに絞り込める。
 
-LLM からは MCP サーバー `https://tsuranari.nukanoto.net/mcp` で操作できる。
+LLM からは MCP サーバー `https://tsuranari.nukanoto.net/mcp` で操作できる ([docs/mcp.md](docs/mcp.md))。
 
 仕様と運用手順は [docs/README.md](docs/README.md) にある。
 

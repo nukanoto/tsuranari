@@ -134,7 +134,7 @@ function parseResponse(
   if (!Array.isArray(marks)) throw new ApiError(400, "marks must be an array");
   const unknown = marks.find((m) => typeof m !== "string" || !valid.has(m));
   if (unknown !== undefined) {
-    throw new ApiError(400, `marks contains an unknown slot: ${JSON.stringify(unknown)}`);
+    throw new ApiError(400, `unknown slot: ${JSON.stringify(unknown)}`);
   }
   return { name, comment, marks: [...new Set(marks as string[])] };
 }

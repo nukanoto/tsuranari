@@ -62,40 +62,7 @@ Cloudflare Workers 1 本で動き、https://tsuranari.nukanoto.net で公開す�
 
 ## MCP サーバー
 
-`https://tsuranari.nukanoto.net/mcp` で Streamable HTTP の MCP サーバーを公開している。認証はない。Web 画面と同じく、イベント ID を知っていれば誰でも読み書きできる。状態を持たない実装で、リクエストごとにサーバーを作る。
-
-登録例:
-
-```sh
-claude mcp add --transport http tsuranari https://tsuranari.nukanoto.net/mcp
-```
-
-claude.ai では Settings の Connectors に同じ URL を追加する。
-
-| ツール            | 内容                                                        |
-| ----------------- | ----------------------------------------------------------- |
-| `create_event`    | イベント作成。回答方式は省略すると ×、土日は省略すると除外  |
-| `get_event`       | イベント、全回答、ベスト候補。`with` で集計する参加者を絞る |
-| `update_event`    | 指定した項目だけ変更する                                    |
-| `add_response`    | 回答追加                                                    |
-| `update_response` | 回答変更。指定しなかった項目は残す                          |
-| `delete_response` | 回答削除                                                    |
-
-リクエスト数を減らすため、どのツールも変更後のイベント全体を返す。返り値には REST の内容に加えて次が入る。
-
-- `url`: 人に共有する URL
-- `marksMean`: そのイベントで `marks` が「参加できない枠」と「参加できる枠」のどちらを表すか
-- `selected`: 集計に含めた参加者の名前
-- `best`: 選んだ参加者のうち参加できる人が多い枠の上位 10 件。人数が同じなら日時の早い順。誰も参加できない枠は含めない
-
-イベントは ID でも URL でも指定できる。回答は ID でも名前でも指定できる。
-
-回答の枠は `available` (参加できる枠) か `unavailable` (参加できない枠) のどちらか一方で渡す。サーバーがイベントの回答方式に合わせて `marks` に変換するので、LLM は × と ○ の違いを気にしなくてよい。どちらも省略した `add_response` は、全枠に参加できる回答になる。
-
-イベントの変更には次の制約がある。
-
-- 回答が 1 件でもあると、時間単位と回答方式は変更できない。既存の印の意味が変わるため。
-- 期間を変えると、範囲外になった印は消える。
+LLM 向けに `/mcp` で MCP サーバーを公開している。仕様は [mcp.md](mcp.md) にある。
 
 ## 開発
 
