@@ -18,7 +18,7 @@ const BEST_LIMIT = 10;
 const INSTRUCTIONS = `tsuranari is a scheduling tool. An event has candidate dates and time slots;
 participants answer which slots they can attend.
 
-A slot is written as "YYYY-MM-DD#i", where i is the index into the event's "slots" labels
+A slot is written as "YYYY-MM-DD#i", where i is the index into the event's "slots" list (each has a "label" and, for class periods, a "time" range)
 (for example "2026-11-16#0" is the first slot on 2026-11-16).
 
 Every tool returns the event after the change, so there is no need to call get_event again.

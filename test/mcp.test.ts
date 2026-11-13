@@ -100,7 +100,7 @@ describe("イベント", () => {
   it("回答があると時間単位と回答方式は変えられないが、回答がなければ変えられる", async () => {
     const ev = await create();
     const changed = await call("update_event", { event: ev.id, unit: "day", mode: "ok" });
-    expect(changed.slots).toEqual(["終日"]);
+    expect(changed.slots).toEqual([{ label: "終日" }]);
     await call("add_response", { event: ev.id, name: "佐藤" });
     const refused = await call("update_event", { event: ev.id, unit: "half" });
     expect(refused.error).toBe("回答があるイベントは時間単位と回答方式を変更できません");

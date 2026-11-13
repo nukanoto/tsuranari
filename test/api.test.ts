@@ -37,7 +37,7 @@ describe("イベント作成", () => {
     // 2026-11-13 is Friday and 2026-11-16 is Monday.
     const ev = await getEvent(await createEvent());
     expect(ev.dates).toEqual(["2026-11-13", "2026-11-16"]);
-    expect(ev.slots).toEqual(["午前", "午後"]);
+    expect(ev.slots).toEqual([{ label: "午前" }, { label: "午後" }]);
     expect(ev.title).toBe("研究室ミーティング");
     expect(ev.responses).toEqual([]);
   });
@@ -47,30 +47,46 @@ describe("イベント作成", () => {
     expect(ev.dates).toHaveLength(4);
   });
 
-  it("昼休みを含む授業単位では、昼休みが 2 限と 3 限の間に入る", async () => {
+  it("授業単位の枠は時間帯を持ち、昼休みは 2 限と 3 限の間に入る", async () => {
     const lunch = await getEvent(await createEvent({ unit: "class_1_6_lunch" }));
     expect(lunch.slots).toEqual([
-      "1限 8:40",
-      "2限 10:10",
-      "昼休み",
-      "3限 12:15",
-      "4限 13:45",
-      "5限 15:15",
-      "6限 16:45",
+      { label: "1限", time: "8:40-9:55" },
+      { label: "2限", time: "10:10-11:25" },
+      { label: "昼休み", time: "11:25-12:15" },
+      { label: "3限", time: "12:15-13:30" },
+      { label: "4限", time: "13:45-15:00" },
+      { label: "5限", time: "15:15-16:30" },
+      { label: "6限", time: "16:45-18:00" },
     ]);
     const both = await getEvent(await createEvent({ unit: "class_1_6_lunch_after" }));
-    expect(both.slots.at(2)).toBe("昼休み");
-    expect(both.slots.at(-1), "放課後は最後に来ること").toBe("放課後");
+    expect(both.slots.at(2)?.label).toBe("昼休み");
+    expect(both.slots.at(-1), "放課後は最後に来ること").toEqual({
+      label: "放課後",
+      time: "18:00〜",
+    });
+  });
+
+  it("時刻そのものが名前の枠には時間帯を付けない", async () => {
+    const hourly = await getEvent(await createEvent({ unit: "hour_8_18" }));
+    expect(hourly.slots[0]).toEqual({ label: "8:00" });
+    const half = await getEvent(await createEvent({ unit: "half_hour_8_18" }));
+    expect(half.slots.slice(0, 2)).toEqual([{ label: "8:00" }, { label: "8:30" }]);
   });
 
   it("昼休みを含まない授業単位の枠は変わらない", async () => {
     // Existing answers store slot indexes, so these lists must never change.
     const plain = await getEvent(await createEvent({ unit: "class_1_6" }));
-    expect(plain.slots).not.toContain("昼休み");
-    expect(plain.slots).toHaveLength(6);
+    expect(plain.slots.map((s) => s.label)).toEqual(["1限", "2限", "3限", "4限", "5限", "6限"]);
     const after = await getEvent(await createEvent({ unit: "class_1_6_after" }));
-    expect(after.slots).toHaveLength(7);
-    expect(after.slots.at(-1)).toBe("放課後");
+    expect(after.slots.map((s) => s.label)).toEqual([
+      "1限",
+      "2限",
+      "3限",
+      "4限",
+      "5限",
+      "6限",
+      "放課後",
+    ]);
   });
 
   it("期間はちょうど 100 日まで許可し、101 日は拒否する", async () => {

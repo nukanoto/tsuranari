@@ -11,7 +11,7 @@ import {
   Show,
   Switch,
 } from "solid-js";
-import { aggregate, type EventView, type ResponseView, slotKey } from "../shared";
+import { aggregate, type EventView, type ResponseView, slotKey, slotText } from "../shared";
 import { api, formatDate } from "./api";
 import styles from "./Event.module.css";
 import { type Filter, formatFilter, parseFilter, selectedIds, toFilter } from "./filter";
@@ -89,7 +89,7 @@ function Loaded(props: { ev: Accessor<EventView>; refetch: () => unknown }) {
   };
   const describe = (key: string) => {
     const [date, slot] = key.split("#");
-    return `${formatDate(date).label} ${ev().slots[Number(slot)]}`;
+    return `${formatDate(date).label} ${slotText(ev().slots[Number(slot)])}`;
   };
 
   return (
@@ -181,7 +181,12 @@ function Loaded(props: { ev: Accessor<EventView>; refetch: () => unknown }) {
               <For each={ev().slots}>
                 {(slot, i) => (
                   <tr>
-                    <th>{slot}</th>
+                    <th>
+                      <span class={styles.slotLabel}>{slot.label}</span>
+                      <Show when={slot.time}>
+                        <span class={styles.slotTime}>{slot.time}</span>
+                      </Show>
+                    </th>
                     <For each={ev().dates}>
                       {(d) => {
                         const key = slotKey(d, i());
@@ -372,7 +377,12 @@ function AnswerForm(props: {
               <For each={ev().slots}>
                 {(slot, i) => (
                   <tr>
-                    <th>{slot}</th>
+                    <th>
+                      <span class={styles.slotLabel}>{slot.label}</span>
+                      <Show when={slot.time}>
+                        <span class={styles.slotTime}>{slot.time}</span>
+                      </Show>
+                    </th>
                     <For each={ev().dates}>
                       {(d) => {
                         const key = slotKey(d, i());

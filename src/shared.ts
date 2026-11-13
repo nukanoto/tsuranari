@@ -5,34 +5,60 @@ function range(from: number, to: number): number[] {
   return Array.from({ length: to - from }, (_, i) => from + i);
 }
 
-const CLASS_PERIODS = ["1限 8:40", "2限 10:10", "3限 12:15", "4限 13:45", "5限 15:15", "6限 16:45"];
+// A time slot. "time" is the range shown under the label; units whose label is
+// already a clock time (1 hour, 30 minutes) leave it out.
+export type Slot = { label: string; time?: string };
 
-// Lunch break sits between 2nd and 3rd period (11:25 - 12:15).
-const WITH_LUNCH = [...CLASS_PERIODS.slice(0, 2), "昼休み", ...CLASS_PERIODS.slice(2)];
+export const slotText = (s: Slot) => (s.time ? `${s.label} (${s.time})` : s.label);
+
+const plain = (labels: string[]): Slot[] => labels.map((label) => ({ label }));
+
+const CLASS_PERIODS: Slot[] = [
+  { label: "1限", time: "8:40-9:55" },
+  { label: "2限", time: "10:10-11:25" },
+  { label: "3限", time: "12:15-13:30" },
+  { label: "4限", time: "13:45-15:00" },
+  { label: "5限", time: "15:15-16:30" },
+  { label: "6限", time: "16:45-18:00" },
+];
+const LUNCH: Slot = { label: "昼休み", time: "11:25-12:15" };
+const AFTER_SCHOOL: Slot = { label: "放課後", time: "18:00〜" };
+
+// Lunch break sits between 2nd and 3rd period.
+const WITH_LUNCH = [...CLASS_PERIODS.slice(0, 2), LUNCH, ...CLASS_PERIODS.slice(2)];
 
 // Class periods follow the University of Tsukuba timetable.
 export const UNITS = {
-  day: { label: "1日単位", slots: ["終日"] },
-  half: { label: "半日単位 (午前 / 午後)", slots: ["午前", "午後"] },
-  hour_0_24: { label: "1時間単位 (0:00 〜 24:00)", slots: range(0, 24).map((h) => `${h}:00`) },
-  hour_8_18: { label: "1時間単位 (8:00 〜 18:00)", slots: range(8, 18).map((h) => `${h}:00`) },
-  hour_8_21: { label: "1時間単位 (8:00 〜 21:00)", slots: range(8, 21).map((h) => `${h}:00`) },
+  day: { label: "1日単位", slots: plain(["終日"]) },
+  half: { label: "半日単位 (午前 / 午後)", slots: plain(["午前", "午後"]) },
+  hour_0_24: {
+    label: "1時間単位 (0:00 〜 24:00)",
+    slots: plain(range(0, 24).map((h) => `${h}:00`)),
+  },
+  hour_8_18: {
+    label: "1時間単位 (8:00 〜 18:00)",
+    slots: plain(range(8, 18).map((h) => `${h}:00`)),
+  },
+  hour_8_21: {
+    label: "1時間単位 (8:00 〜 21:00)",
+    slots: plain(range(8, 21).map((h) => `${h}:00`)),
+  },
   half_hour_8_18: {
     label: "30分単位 (8:00 〜 18:00)",
-    slots: range(16, 36).map((i) => `${Math.floor(i / 2)}:${i % 2 ? "30" : "00"}`),
+    slots: plain(range(16, 36).map((i) => `${Math.floor(i / 2)}:${i % 2 ? "30" : "00"}`)),
   },
   class_1_6: { label: "授業単位 (1限 〜 6限)", slots: CLASS_PERIODS },
   class_1_6_after: {
     label: "授業単位 (1限 〜 6限・放課後)",
-    slots: [...CLASS_PERIODS, "放課後"],
+    slots: [...CLASS_PERIODS, AFTER_SCHOOL],
   },
   // Added as separate units so slot indexes of existing events never shift.
   class_1_6_lunch: { label: "授業単位 (1限 〜 6限・昼休み)", slots: WITH_LUNCH },
   class_1_6_lunch_after: {
     label: "授業単位 (1限 〜 6限・昼休み・放課後)",
-    slots: [...WITH_LUNCH, "放課後"],
+    slots: [...WITH_LUNCH, AFTER_SCHOOL],
   },
-} satisfies Record<string, { label: string; slots: string[] }>;
+} satisfies Record<string, { label: string; slots: Slot[] }>;
 
 export type Unit = keyof typeof UNITS;
 
@@ -61,6 +87,7 @@ export type RankedSlot = {
   slot: string;
   date: string;
   label: string;
+  time?: string;
   ok: string[];
   ng: string[];
 };
@@ -76,7 +103,7 @@ export type EventView = {
   end: string;
   excludeWeekends: boolean;
   dates: string[];
-  slots: string[];
+  slots: Slot[];
   responses: ResponseView[];
 };
 
@@ -119,7 +146,7 @@ export function rank(ev: Grid, selected: ReadonlySet<string>, limit: number): Ra
       return {
         slot: key,
         date,
-        label: ev.slots[Number(slot)],
+        ...ev.slots[Number(slot)],
         ok: cell.ok.map((r) => r.name),
         ng: cell.ng.map((r) => r.name),
       };

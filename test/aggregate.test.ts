@@ -22,7 +22,7 @@ const event = (mode: "ng" | "ok"): EventView => ({
   end: "2026-11-16",
   excludeWeekends: true,
   dates: ["2026-11-13", "2026-11-16"],
-  slots: ["午前", "午後"],
+  slots: [{ label: "午前" }, { label: "午後" }],
   responses: [
     person("a", ["2026-11-13#0"]),
     person("b", ["2026-11-13#0", "2026-11-16#1"]),
@@ -72,6 +72,16 @@ describe("ベスト候補の順位付け", () => {
       ok: ["a", "b", "c"],
       ng: [],
     });
+  });
+
+  it("時間帯のある枠は、順位にもその時間帯が入る", () => {
+    const ev = event("ng");
+    ev.slots = [
+      { label: "1限", time: "8:40-9:55" },
+      { label: "2限", time: "10:10-11:25" },
+    ];
+    const best = rank(ev, new Set(["a", "b", "c"]), 10);
+    expect(best[0]).toMatchObject({ slot: "2026-11-13#1", label: "2限", time: "10:10-11:25" });
   });
 
   it("件数の上限を守り、誰も選ばなければ空になる", () => {

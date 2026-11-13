@@ -140,6 +140,17 @@
   text-align: right;
 }
 
+.slotLabel {
+  display: block;
+}
+
+.slotTime {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
 .sat {
   color: var(--accent);
 }
